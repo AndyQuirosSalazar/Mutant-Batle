@@ -118,3 +118,135 @@
 * `+ MainWindow view` // Referencia a la interfaz gráfica
 * `- void startGame()` // Captura el clic del botón, valida el número y delega el inicio a la capa Game
 * `- void connectObserver()` // Suscribe la VentanaPrincipal a la lista de observadores del CampoDeBatalla para mantenerlos sincronizados
+
+@startuml
+package Model {
+    interface IConstants {
+        + WAIT_TIME: int = 3000
+        + DIE_MESSAGE: string = "Ha muerto"
+        + VICTORY_MESSAGE: string = "Ha ganado"
+        + INITIAL_ENERGY: int = 100
+        + MAX_DAMAGE: int = 7
+        + MIN_DAMAGE: int = 1
+        + ATTACK_RADIUS: int
+        + VELOCITY_XY: double
+        + WIDTH: int
+        + HEIGHT: int
+    }
+
+    class Mutant {
+        + id: double
+        + team: double
+        + energy: int = INITIAL_ENERGY
+        + x: int
+        + y: int
+        + isAlive: bool
+        + defense: int
+        - getPower(): MutantPower
+        - assignDefense(): int
+        - move(): void
+        - decide(): void
+        - scanRadar(): void
+        - generateId(): void
+    }
+
+    class MutantPower {
+        + powerId: double
+        + attackDamage: int
+        - assignDamage(): int
+        - increaseDamage(): void
+        - generateId(): void
+    }
+}
+
+package Game {
+    class Battlefield {
+        + team1: Team
+        + team2: Team
+        + scoreboard: Scoreboard
+        - startBattle(): void
+    }
+
+    class Team {
+        + name: double
+        + mutantCount: double
+        + aliveMutants: double
+        + mutants: array
+    }
+
+    class Scoreboard {
+        + aliveTeam1: int
+        + deadTeam1: int
+        + aliveTeam2: int
+        + deadTeam2: int
+        - registerCasualty(): void
+    }
+
+    class Generator {
+        - generateMutant(): void
+        - generateTeam(): void
+    }
+}
+
+package Control {
+    class MutantController {
+        + battlefield: Battlefield
+        - moveRandomly(): void
+        - detectEnemyInRadius(): Mutant
+        - decideAction(enemy: Mutant): void
+        - checkGameOver(): boolean
+        - run(): void
+    }
+
+    class BattleManager {
+        + mutantThreads: array<Thread>
+        + startThreads(): void
+    }
+}
+
+package UI {
+    interface BattleObserver {
+        + updateScreen(): void
+    }
+
+    class MainWindow {
+        + battlePanel: BattlePanel
+        + scoreboardPanel: ScoreboardPanel
+        + refreshRate: int
+        - configureWindow(): void
+        - showWinnerMessage(): void
+        - updateScreen(): void
+    }
+
+    class BattlePanel {
+        - paintComponent(): void
+        - drawBattlefield(): void
+        - drawMutant(): void
+    }
+
+    class ScoreboardPanel {
+        + btnNewGame: JButton
+        + txtTeamSize: JTextField
+        - updateCount(currentScoreboard: Scoreboard): void
+        - drawPlayersEnergy(mutants: array<Mutant>): void
+    }
+
+    class UIController {
+        + gameModel: Battlefield
+        + view: MainWindow
+        - startGame(): void
+        - connectObserver(): void
+    }
+}
+
+' Relaciones estructurales basadas en los atributos
+Mutant ..> MutantPower : usa
+Battlefield --> Team : contiene
+Battlefield --> Scoreboard : gestiona
+MutantController --> Battlefield : observa
+MainWindow ..|> BattleObserver : implementa
+MainWindow --> BattlePanel : contiene
+MainWindow --> ScoreboardPanel : contiene
+UIController --> Battlefield : gameModel
+UIController --> MainWindow : view
+@enduml
