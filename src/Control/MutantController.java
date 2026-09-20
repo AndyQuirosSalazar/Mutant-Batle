@@ -60,21 +60,30 @@ public class MutantController implements Runnable, IConstants {
 
     @Override
     public void run() {
-        // Bucle del hilo mientras el mutante esté vivo y el juego activo
+        // Bucle del hilo mientras el juego siga activo. IMPORTANTE: no se corta
+        // por mutant.isAlive, porque el CyclicBarrier tiene un número fijo de
+        // hilos esperados en cada await() - si un hilo se sale antes que los
+        // demás, el resto se queda esperando para siempre (deadlock).
         try {
-            while (gameActive.get() && mutant.isAlive) {
+            while (gameActive.get()) {
 
                 // --- FASE 1: MOVE ---
-                moveRandomly();
+                if (mutant.isAlive) {
+                    moveRandomly();
+                }
                 barrier.await();
 
                 // --- FASE 2: DECIDE ---
-                mutant.ensureDecision();
+                if (mutant.isAlive) {
+                    mutant.ensureDecision();
+                }
                 barrier.await();
 
                 // --- FASE 3: ATTACK ---
-                Mutant enemy = detectEnemyInRadius();
-                decideAction(enemy);
+                if (mutant.isAlive) {
+                    Mutant enemy = detectEnemyInRadius();
+                    decideAction(enemy);
+                }
                 barrier.await();
 
                 // Alguien pudo ganar en esta ronda; el primero en notarlo avisa a todos
