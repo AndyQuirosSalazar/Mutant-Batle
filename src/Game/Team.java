@@ -17,8 +17,7 @@ public class Team implements IConstants {
 
         this.mutants = new Mutant[(int) mutantCount];
         for (int i = 0; i < mutants.length; i++) {
-            mutants[i] = new Mutant();
-            mutants[i].team = name;
+            mutants[i] = new Mutant(name);
         }
     }
 }
