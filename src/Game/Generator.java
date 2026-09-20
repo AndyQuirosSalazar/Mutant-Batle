@@ -7,15 +7,19 @@ public class Generator {
     public Generator() {
     }
 
-    private Mutant generateMutant(double team) {
+    // static: no depende de ningún dato propio de una instancia de Generator,
+    // así que Team puede llamarlo directo como Generator.generateMutant(name)
+    // sin necesitar crear un new Generator() primero.
+    public static Mutant generateMutant(double team) {
         // genera un mutante con todas sus características
         // (id, defensa, poder y posición se generan dentro del constructor de Mutant)
         return new Mutant(team);
     }
 
-    private Team generateTeam(double name, double mutantCount) {
+    public Team generateTeam(double name, double mutantCount) {
         // genera un equipo con todas sus caracteristicas
-        // (el array de mutantes se genera dentro del constructor de Team)
+        // (el array de mutantes se genera dentro del constructor de Team,
+        // usando Generator.generateMutant() para cada uno)
         return new Team(name, mutantCount);
     }
 }
