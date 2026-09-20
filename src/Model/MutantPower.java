@@ -14,19 +14,19 @@ public class MutantPower implements IConstants {
         this.attackDamage = assignDamage();
     }
 
-    private int assignDamage() {
+    public int assignDamage() {
         // se asigna un daño aleatorio entre 1 y 3
         return MIN_DAMAGE + RANDOM.nextInt(3); // 1, 2 o 3
     }
 
-    private void increaseDamage() {
+    public void increaseDamage() {
         // Se aumenta el daño en 1 cuando gana una batalla, sin pasar el máximo
         if (attackDamage < MAX_DAMAGE) {
             attackDamage++;
         }
     }
 
-    private void generateId() {
+    public void generateId() {
         // genera un Id aleatorio para cada poder
         this.powerId = RANDOM.nextInt(1_000_000);
     }
@@ -38,12 +38,6 @@ public class MutantPower implements IConstants {
 
     public double getPowerId() {
         return powerId;
-    }
-
-    // Se necesita exponer increaseDamage() públicamente para que
-    // MutantController pueda llamarlo al terminar una batalla
-    public void onBattleWon() {
-        increaseDamage();
     }
 
     @Override
