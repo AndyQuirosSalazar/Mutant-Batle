@@ -18,7 +18,6 @@ public class Generator {
 
     public Team generateTeam(double name, double mutantCount) {
         // genera un equipo con todas sus caracteristicas
-        // (el array de mutantes se genera dentro del constructor de Team,
         // usando Generator.generateMutant() para cada uno)
         return new Team(name, mutantCount);
     }
