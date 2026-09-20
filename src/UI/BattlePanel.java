@@ -8,7 +8,8 @@ public class BattlePanel extends JPanel {
     public BattlePanel() {
     }
 
-    private void paintComponent(Graphics g) {
+    @Override
+    protected void paintComponent(Graphics g) {
         // Método nativo de Java donde se programa el renderizado gráfico
     }
 

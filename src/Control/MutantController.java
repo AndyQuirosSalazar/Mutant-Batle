@@ -44,9 +44,9 @@ public class MutantController implements Runnable, IConstants {
         mutant.ensureDecision();
 
         if (enemy != null && mutant.decide) {
-            enemy.receiveDamage(mutant.getAttackDamage());
+            boolean killedNow = enemy.receiveDamage(mutant.getAttackDamage());
 
-            if (!enemy.isAlive) {
+            if (killedNow) {
                 battlefield.scoreboard.registerDeadMutant(enemy);
                 mutant.onBattleWon();
             }

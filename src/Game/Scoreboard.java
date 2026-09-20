@@ -22,8 +22,10 @@ public class Scoreboard {
         this.deadTeam2 = 0;
     }
 
-    // Se expone públicamente para que MutantController la llame cuando un mutante muere en batalla
-    public void registerDeadMutant(Mutant mutant) {
+    // Se expone públicamente para que MutantController la llame cuando un mutante muere en batalla.
+    // synchronized porque varios hilos de MutantController pueden llamarla al mismo tiempo
+    // durante la fase de ataque (antes del barrier.await()), y aliveTeam1--/aliveTeam2-- no es atómico.
+    public synchronized void registerDeadMutant(Mutant mutant) {
         // Registra la baja de un mutante en el equipo al que pertenece
         mutant.isAlive = false;
 
