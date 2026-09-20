@@ -45,8 +45,8 @@ public class Mutant implements IConstants {
         int newX = (int) Math.round((RANDOM.nextDouble() * 2 - 1) * VELOCITY_XY);
         int newY = (int) Math.round((RANDOM.nextDouble() * 2 - 1) * VELOCITY_XY);
 
-        x = clamp(x + newX, 0, WIDTH);
-        y = clamp(y + newY, 0, HEIGHT);
+        x = limit(x + newX, 0, WIDTH);
+        y = limit(y + newY, 0, HEIGHT);
     }
 
     public boolean decideNow() {
@@ -57,8 +57,8 @@ public class Mutant implements IConstants {
     
     }
 
-    // Se llama en la fase de decidir de cada ronda. Si el mutante ya decidió
-
+    // Se llama en la fase DECIDE de cada ronda. Si el mutante ya decidió
+    // en esta ronda, no vuelve a tirar el random - solo devuelve lo que ya tenía.
     public boolean ensureDecision() {
         if (!hasDecidedThisTurn) {
             decideNow();
@@ -92,7 +92,7 @@ public class Mutant implements IConstants {
         this.id = RANDOM.nextInt(1_000_000);
     }
 
-    private int clamp(int value, int min, int max) {
+    private int limit(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }
 
@@ -102,24 +102,18 @@ public class Mutant implements IConstants {
         return power.getAttackDamage();
     }
 
-    public void receiveDamage(int incomingDamage) {
-        
-        if (this.decide){
-            int effectiveDamage = Math.max(0, incomingDamage);
+    public void receiveDamage(int Damage) {
+        if (this.decide) {
+            int effectiveDamage = Math.max(0, Damage);
             energy -= effectiveDamage;
-            if (energy <= 0) {
-                energy = 0;
-                isAlive = false;
-            }
+        } else {
+            int effectiveDamage = Math.max(0, Damage - defense);
+            energy -= effectiveDamage;
         }
-        
-        else {
-            int effectiveDamage = Math.max(0, incomingDamage - defense);
-            energy -= effectiveDamage;
-            if (energy <= 0) {
-                energy = 0;
-                isAlive = false;
-            }
+
+        if (energy <= 0) {
+            energy = 0;
+            isAlive = false;
         }
     }
 
@@ -127,7 +121,7 @@ public class Mutant implements IConstants {
         power.increaseDamage();
     }
 
-    // Orquesta un turno completo: moverse, escanear y decidir si ataca.
+    // Realiza un turno completo: moverse, escanear y decidir si ataca.
 
     public void takeTurn(List<Mutant> allMutants) {
         if (!isAlive) {
