@@ -12,4 +12,6 @@ public interface IConstants {
     double VELOCITY_XY = 0.0; // TODO: por definir - velocidad a la que se moverán los mutantes
     int WIDTH = 0; // constante de ancho del campo de batalla
     int HEIGHT = 0; // constante de altura del campo de batalla
+    int MAX_MUTANTS = 11; // cantidad maxima de mutantes por equipo
+    int MIN_MUTANTS = 3; // cantidad minima de mutantes por equipo
 }
