@@ -40,11 +40,4 @@ public class MutantPower implements IConstants {
         return powerId;
     }
 
-    @Override
-    public String toString() {
-        return "MutantPower{" +
-                "powerId=" + powerId +
-                ", attackDamage=" + attackDamage +
-                '}';
-    }
 }

@@ -102,11 +102,6 @@ public class Mutant implements IConstants {
         return power.getAttackDamage();
     }
 
-    // synchronized porque dos atacantes distintos pueden detectar y golpear al
-    // mismo enemigo en la misma ronda (fase ATTACK corre en paralelo); sin esto,
-    // energy -= effectiveDamage se pierde entre hilos y ambos podrían ver
-    // isAlive == true al mismo tiempo y reportar la muerte por duplicado.
-    // Devuelve true solo al golpe que efectivamente lo mató, para que
     // MutantController registre la baja una única vez.
     public synchronized boolean receiveDamage(int Damage) {
         if (!isAlive) {
@@ -133,30 +128,4 @@ public class Mutant implements IConstants {
         power.increaseDamage();
     }
 
-    // Realiza un turno completo: moverse, escanear y decidir si ataca.
-
-    public void takeTurn(List<Mutant> allMutants) {
-        if (!isAlive) {
-            return;
-        }
-        decideNow();
-        move();
-        Mutant enemy = scanRadar(allMutants);
-        if (enemy != null && this.decide) {
-            enemy.receiveDamage(this.getAttackDamage());
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Mutant{" +
-                "id=" + id +
-                ", team=" + team +
-                ", energy=" + energy +
-                ", x=" + x +
-                ", y=" + y +
-                ", isAlive=" + isAlive +
-                ", defense=" + defense +
-                '}';
-    }
 }
