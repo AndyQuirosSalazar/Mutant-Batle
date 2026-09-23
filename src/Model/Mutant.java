@@ -17,6 +17,7 @@ public class Mutant implements IConstants {
     public boolean decide; // variables para saber si se esta defendiendo o atacando
     private boolean hasDecidedThisTurn; // controla que decideNow() solo se ejecute una vez por ronda
     private MutantPower power; // poder de cada mutante
+    private double heading; // dirección actual del movimiento, en radianes (persiste entre pasos)
 
     public Mutant(double team) {
         this.team = team;
@@ -27,6 +28,7 @@ public class Mutant implements IConstants {
         this.power = getPower();
         this.x = RANDOM.nextInt(Math.max(WIDTH, 1));
         this.y = RANDOM.nextInt(Math.max(HEIGHT, 1));
+        this.heading = RANDOM.nextDouble() * 2 * Math.PI; // rumbo inicial aleatorio
     }
 
     public MutantPower getPower() {
@@ -40,10 +42,23 @@ public class Mutant implements IConstants {
     }
 
     public void move() {
-        // Se mueve aleatoriamente dentro de los límites del campo de batalla,
-        // usando VELOCITY_XY como el paso máximo por eje.
-        int newX = (int) Math.round((RANDOM.nextDouble() * 2 - 1) * VELOCITY_XY);
-        int newY = (int) Math.round((RANDOM.nextDouble() * 2 - 1) * VELOCITY_XY);
+        // Gira un poco la dirección actual en vez de elegir una nueva de cero -
+        // esto hace que el camino se vea como una curva suave en vez de zigzag.
+        heading += (RANDOM.nextDouble() * 2 - 1) * 0.4; // giro máximo ~0.4 radianes por paso
+
+        int proposedX = x + (int) Math.round(Math.cos(heading) * VELOCITY_XY);
+        int proposedY = y + (int) Math.round(Math.sin(heading) * VELOCITY_XY);
+
+        // Si se sale del campo, "rebota": invierte la componente del rumbo que corresponda
+        if (proposedX < 0 || proposedX > WIDTH) {
+            heading = Math.PI - heading; // rebote horizontal
+        }
+        if (proposedY < 0 || proposedY > HEIGHT) {
+            heading = -heading; // rebote vertical
+        }
+
+        int newX = (int) Math.round(Math.cos(heading) * VELOCITY_XY);
+        int newY = (int) Math.round(Math.sin(heading) * VELOCITY_XY);
 
         x = limit(x + newX, 0, WIDTH);
         y = limit(y + newY, 0, HEIGHT);

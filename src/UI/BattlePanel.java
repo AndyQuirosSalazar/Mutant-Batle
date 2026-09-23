@@ -28,12 +28,27 @@ public class BattlePanel extends JPanel {
     private static final int MUTANT_SIZE = 24; // diámetro en pixeles de cada mutante
     private static final int MARGIN = 40; // espacio entre el borde del panel y la arena
     private static final int GRID_STEP = 40;
+    private static final long DAMAGE_POPUP_DURATION_MS = 800; // cuánto dura visible el número de daño
+    private static final int DAMAGE_POPUP_RISE = 18; // cuánto sube el número mientras se desvanece (px)
 
     private Battlefield battlefield; // solo se consulta, nunca se modifica
     private final Map<Mutant, Integer> initialEnergy = new IdentityHashMap<>(); // energía con la que empezó cada mutante
+    private final Map<Mutant, Integer> lastSeenEnergy = new IdentityHashMap<>(); // energía vista en el repintado anterior
+    private final Map<Mutant, DamagePopup> damagePopups = new IdentityHashMap<>(); // números de daño flotantes activos
     private int worldWidth = 1; // mayor coordenada x observada, para escalar al tamaño del panel
     private int worldHeight = 1; // mayor coordenada y observada, para escalar al tamaño del panel
     private String banner; // mensaje de ganador dibujado sobre la arena
+
+    // Guarda cuánto daño mostrar y desde cuándo, para poder calcular el desvanecimiento
+    private static class DamagePopup {
+        final int amount;
+        final long startTime;
+
+        DamagePopup(int amount) {
+            this.amount = amount;
+            this.startTime = System.currentTimeMillis();
+        }
+    }
 
     public BattlePanel() {
         setBackground(BACKGROUND_COLOR);
@@ -47,8 +62,11 @@ public class BattlePanel extends JPanel {
         this.worldWidth = 1;
         this.worldHeight = 1;
         initialEnergy.clear();
+        lastSeenEnergy.clear();
+        damagePopups.clear();
         for (Mutant mutant : battlefield.getAllMutants()) {
             initialEnergy.put(mutant, Math.max(mutant.energy, 1));
+            lastSeenEnergy.put(mutant, mutant.energy);
         }
         repaint();
     }
@@ -78,6 +96,7 @@ public class BattlePanel extends JPanel {
         } else {
             List<Mutant> mutants = battlefield.getAllMutants();
             updateWorldBounds(mutants);
+            updateDamagePopups(mutants);
             // Primero los muertos, para que los vivos queden dibujados encima
             for (Mutant mutant : mutants) {
                 if (!mutant.isAlive) {
@@ -89,6 +108,7 @@ public class BattlePanel extends JPanel {
                     drawMutant(g2, mutant);
                 }
             }
+            drawDamagePopups(g2);
             drawLegend(g2);
         }
 
@@ -158,6 +178,15 @@ public class BattlePanel extends JPanel {
         g2.fillRect(barLeft, barTop, barWidth, barHeight);
         g2.setColor(energyColor(ratio));
         g2.fillRect(barLeft, barTop, (int) Math.round(barWidth * ratio), barHeight);
+
+        // Texto de daño y defensa, debajo del mutante
+        String statsText = "DMG " + mutant.getAttackDamage() + " · DEF " + mutant.defense;
+        g2.setFont(getFont().deriveFont(Font.PLAIN, 10f));
+        FontMetrics dmgMetrics = g2.getFontMetrics();
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.drawString(statsText,
+                centerX - dmgMetrics.stringWidth(statsText) / 2,
+                top + MUTANT_SIZE + dmgMetrics.getAscent() + 4);
     }
 
     private void drawLegend(Graphics2D g2) {
@@ -192,6 +221,50 @@ public class BattlePanel extends JPanel {
         for (Mutant mutant : mutants) {
             worldWidth = Math.max(worldWidth, mutant.x);
             worldHeight = Math.max(worldHeight, mutant.y);
+        }
+    }
+
+    private void updateDamagePopups(List<Mutant> mutants) {
+        // Compara la energía actual contra la vista en el repintado anterior.
+        // Si bajó, es que recibió daño desde el último frame - se crea/reemplaza su popup.
+        for (Mutant mutant : mutants) {
+            Integer previous = lastSeenEnergy.get(mutant);
+            if (previous != null && mutant.energy < previous) {
+                damagePopups.put(mutant, new DamagePopup(previous - mutant.energy));
+            }
+            lastSeenEnergy.put(mutant, mutant.energy);
+        }
+
+        // Elimina los popups que ya cumplieron su tiempo de vida
+        long now = System.currentTimeMillis();
+        damagePopups.entrySet().removeIf(entry -> now - entry.getValue().startTime > DAMAGE_POPUP_DURATION_MS);
+    }
+
+    private void drawDamagePopups(Graphics2D g2) {
+        long now = System.currentTimeMillis();
+        g2.setFont(getFont().deriveFont(Font.BOLD, 15f));
+
+        for (Map.Entry<Mutant, DamagePopup> entry : damagePopups.entrySet()) {
+            Mutant mutant = entry.getKey();
+            DamagePopup popup = entry.getValue();
+
+            double elapsed = now - popup.startTime;
+            double progress = Math.min(1.0, elapsed / DAMAGE_POPUP_DURATION_MS); // 0 = recién aparece, 1 = a punto de desaparecer
+            int alpha = (int) Math.round(255 * (1.0 - progress)); // se desvanece con el tiempo
+            int riseOffset = (int) Math.round(DAMAGE_POPUP_RISE * progress); // sube mientras se desvanece
+
+            String text = "-" + popup.amount;
+            int centerX = toScreenX(mutant.x);
+            int top = toScreenY(mutant.y) - MUTANT_SIZE / 2;
+            int textY = top - 12 - riseOffset;
+
+            FontMetrics metrics = g2.getFontMetrics();
+            int textX = centerX - metrics.stringWidth(text) / 2;
+
+            g2.setColor(new Color(255, 255, 255, alpha)); // contorno claro para que se lea sobre cualquier fondo
+            g2.drawString(text, textX - 1, textY - 1);
+            g2.setColor(new Color(232, 65, 24, alpha)); // rojo/naranja, el mismo tono de energía baja
+            g2.drawString(text, textX, textY);
         }
     }
 

@@ -45,6 +45,7 @@ public class ScoreboardPanel extends JPanel {
 
     private final JPanel energyList = new JPanel(); // lista de barras de energía, una por mutante
     private final Map<Mutant, JProgressBar> energyBars = new IdentityHashMap<>();
+    private final Map<Mutant, JLabel> damageLabels = new IdentityHashMap<>(); // etiqueta de daño por mutante, actualizada en vivo
     private Battlefield battlefield;
 
     public ScoreboardPanel(int refreshRate) {
@@ -116,11 +117,17 @@ public class ScoreboardPanel extends JPanel {
         lblTeam2.setText("Equipo " + (int) battlefield.team2.name);
 
         energyBars.clear();
+        damageLabels.clear();
         energyList.removeAll();
         for (Mutant mutant : battlefield.getAllMutants()) {
             JLabel name = new JLabel("Equipo " + (int) mutant.team + " · Mutante #" + (int) mutant.id);
             name.setForeground(BattlePanel.teamColor(battlefield, mutant));
             name.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            JLabel damage = new JLabel("Daño: " + mutant.getAttackDamage() + " · Defensa: " + mutant.defense);
+            damage.setForeground(Color.LIGHT_GRAY);
+            damage.setFont(damage.getFont().deriveFont(Font.PLAIN, 11f));
+            damage.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             JProgressBar bar = new JProgressBar(0, Math.max(mutant.energy, 1));
             bar.setStringPainted(true);
@@ -128,9 +135,11 @@ public class ScoreboardPanel extends JPanel {
             bar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
 
             energyList.add(name);
+            energyList.add(damage);
             energyList.add(bar);
             energyList.add(Box.createVerticalStrut(6));
             energyBars.put(mutant, bar);
+            damageLabels.put(mutant, damage);
         }
         energyList.revalidate();
         energyList.repaint();
@@ -168,9 +177,10 @@ public class ScoreboardPanel extends JPanel {
     }
 
     private void drawPlayersEnergy(List<Mutant> mutants) {
-        // Lista visual con la energía restante de cada mutante
+        // Lista visual con la energía restante y el daño actual de cada mutante
         for (Mutant mutant : mutants) {
             JProgressBar bar = energyBars.get(mutant);
+            JLabel damageLabel = damageLabels.get(mutant);
             if (bar == null) {
                 continue;
             }
@@ -181,6 +191,9 @@ public class ScoreboardPanel extends JPanel {
             } else {
                 bar.setForeground(BattlePanel.DEAD_COLOR);
                 bar.setString("Muerto");
+            }
+            if (damageLabel != null) {
+                damageLabel.setText("Daño: " + mutant.getAttackDamage() + " · Defensa: " + mutant.defense);
             }
         }
     }
