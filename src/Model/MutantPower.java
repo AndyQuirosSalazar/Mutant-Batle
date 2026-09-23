@@ -6,11 +6,9 @@ public class MutantPower implements IConstants {
 
     private static final Random RANDOM = new Random();
 
-    public double powerId; // nombre de cada poder
     public int attackDamage; // aleatorio entre 1 y 3 con un máximo de 7
 
     public MutantPower() {
-        generateId();
         this.attackDamage = assignDamage();
     }
 
@@ -26,18 +24,9 @@ public class MutantPower implements IConstants {
         }
     }
 
-    public void generateId() {
-        // genera un Id aleatorio para cada poder
-        this.powerId = RANDOM.nextInt(1_000_000);
-    }
-
-    // Getters públicos para que otras clases (como Mutant) puedan usarlos
+    // Getter público para que otras clases (como Mutant) puedan usarlo
     public int getAttackDamage() {
         return attackDamage;
-    }
-
-    public double getPowerId() {
-        return powerId;
     }
 
 }

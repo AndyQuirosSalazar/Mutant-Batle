@@ -12,8 +12,6 @@
 
 #### `public Interface IConstants`
 * `+ final int WAIT_TIME = 3000` // constante de tiempo de espera
-* `+ final string DIE_MESSAGE = "Ha muerto"` // constante del mensaje de muerte
-* `+ final string VICTORY_MESSAGE = "Ha ganado"` // constante del mensaje de victoria
 * `+ final int INITIAL_ENERGY = 100` // constante de la energía inicial
 * `+ final int MAX_DAMAGE = 7` // constante del daño maximo
 * `+ final int MIN_DAMAGE = 1` // constante del daño minimo
@@ -38,11 +36,9 @@
 * `- void generateId()` // genera un id aleatorio para el mutante
 
 #### `class MutantPower`
-* `+ double powerId` // nombre de cada poder
 * `+ int attackDamage` // aleatorio entre 1 y 3 con un máximo de 7
 * `- int assignDamage()` // se asigna un daño aleatorio entre 1 y 3
 * `- void increaseDamage()` // Se aumenta el daño en 1 cuando gana una batalla
-* `- void generateId()` // genera un Id aleatorio para cada poder
 
 ---
 
@@ -57,7 +53,6 @@
 #### `class Team`
 * `+ double name` // se asignan dos equipos cada uno con 1 o 2
 * `+ double mutantCount` // Cantidad asiganda por el usuario máximo 11 y minimo 3
-* `+ double aliveMutants` // cantidad de mutantes vivos en el equipo
 * `+ array mutants` // los mutantes que hay en el equipo
 
 #### `class Scoreboard`
@@ -105,13 +100,13 @@
 #### `class BattlePanel`
 * `- void paintComponent()` // Método nativo de Java donde se programa el renderizado gráfico
 * `- void drawBattlefield()` // Renderiza el fondo usando las dimensiones del CampoDeBatalla
-* `- void drawMutant()` // Dibuja la forma, el color del equipo, el símbolo y la barra de energía en las coordenadas x, y actuales
+* `- void drawMutant()` // Dibuja la forma, el color del equipo, el símbolo, la barra de energía y el daño/defensa (DMG/DEF) de cada mutante en las coordenadas x, y actuales
 
 #### `class ScoreboardPanel`
 * `+ JButton btnNewGame` // Botón para iniciar un juego nuevo sin cerrar la aplicación
 * `+ JTextField txtTeamSize` // Campo de texto para que el usuario ingrese la cantidad de mutantes (3 a 11)
 * `- void updateCount(Scoreboard currentScoreboard)` // Actualiza las etiquetas de vivos y muertos por equipo
-* `- void drawPlayersEnergy(List<Mutant> mutants)` // Lista visual con la energía restante de cada mutante
+* `- void drawPlayersEnergy(List<Mutant> mutants)` // Lista visual con la energía, el daño y la defensa restantes de cada mutante
 
 #### `class UIController`
 * `+ Battlefield gameModel` // Referencia de solo lectura a la capa Game
@@ -123,8 +118,6 @@
 package Model {
     interface IConstants {
         + WAIT_TIME: int = 3000
-        + DIE_MESSAGE: string = "Ha muerto"
-        + VICTORY_MESSAGE: string = "Ha ganado"
         + INITIAL_ENERGY: int = 100
         + MAX_DAMAGE: int = 7
         + MIN_DAMAGE: int = 1
@@ -151,11 +144,9 @@ package Model {
     }
 
     class MutantPower {
-        + powerId: double
         + attackDamage: int
         - assignDamage(): int
         - increaseDamage(): void
-        - generateId(): void
     }
 }
 
@@ -170,7 +161,6 @@ package Game {
     class Team {
         + name: double
         + mutantCount: double
-        + aliveMutants: double
         + mutants: array
     }
 
@@ -237,6 +227,18 @@ package UI {
         - startGame(): void
         - connectObserver(): void
     }
+
+    note right of BattlePanel
+        drawMutant() ahora también dibuja
+        el daño (DMG) y la defensa (DEF)
+        de cada mutante bajo su ícono.
+    end note
+
+    note right of ScoreboardPanel
+        drawPlayersEnergy() ahora también
+        muestra el daño y la defensa de
+        cada mutante junto a su energía.
+    end note
 }
 
 ' Relaciones estructurales basadas en los atributos

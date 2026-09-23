@@ -3,8 +3,6 @@ package Model;
 public interface IConstants {
 
     int WAIT_TIME = 60; // constante de tiempo de espera entre rondas (ms)
-    String DIE_MESSAGE = "Ha muerto"; // constante del mensaje de muerte
-    String VICTORY_MESSAGE = "Ha ganado"; // constante del mensaje de victoria
     int INITIAL_ENERGY = 100; // constante de la energía inicial
     int MAX_DAMAGE = 7; // constante del daño maximo
     int MIN_DAMAGE = 1; // constante del daño minimo

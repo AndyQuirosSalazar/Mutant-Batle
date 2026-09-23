@@ -37,10 +37,6 @@ public class UIController {
         observers.add(observer);
     }
 
-    public void removeObserver(BattleObserver observer) {
-        observers.remove(observer);
-    }
-
     private void notifyObservers() {
         // Avisa a cada observador que debe consultar el Battlefield y redibujarse
         for (BattleObserver observer : observers) {

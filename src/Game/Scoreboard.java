@@ -32,32 +32,9 @@ public class Scoreboard {
         if (mutant.team == team1.name) {
             aliveTeam1--;
             deadTeam1++;
-            team1.aliveMutants = aliveTeam1;
         } else if (mutant.team == team2.name) {
             aliveTeam2--;
             deadTeam2++;
-            team2.aliveMutants = aliveTeam2;
         }
-    }
-
-    // Recalcula los contadores desde cero revisando el estado real de cada mutante
-    public void refreshCounts() {
-        aliveTeam1 = countAlive(team1);
-        deadTeam1 = team1.mutants.length - aliveTeam1;
-        team1.aliveMutants = aliveTeam1;
-
-        aliveTeam2 = countAlive(team2);
-        deadTeam2 = team2.mutants.length - aliveTeam2;
-        team2.aliveMutants = aliveTeam2;
-    }
-
-    private int countAlive(Team team) {
-        int alive = 0;
-        for (Mutant mutant : team.mutants) {
-            if (mutant != null && mutant.isAlive) {
-                alive++;
-            }
-        }
-        return alive;
     }
 }
